@@ -358,7 +358,7 @@ const translations = {
 'dashboardKpi.onlineSensors.subtitle': 'Based on the status field',
 'dashboardKpi.recentReadings.title': 'Recent readings',
 'dashboardKpi.recentReadings.subtitle': 'Latest available records',
-
+   
     client: 'Client',
     clientDetail: 'Client detail',
     newClient: 'New client',
