@@ -61,7 +61,7 @@ function progressTone(value) {
 function detectKpiKey(title = '') {
   const normalized = title.toLowerCase()
 
-  if (normalized.includes('plantes totals') || normalized.includes('plantes total') || normalized.includes('total plants')) {
+  if (normalized.includes('plantes totals') || normalized.includes('total plants')) {
     return 'totalPlants'
   }
 
@@ -87,20 +87,20 @@ function detectKpiKey(title = '') {
 
 function normalizeKpis(kpis, t) {
   const base = Array.isArray(kpis) ? kpis : []
-  const normalizedMap = new Map()
+  const map = new Map()
 
   for (const item of base) {
     const key = detectKpiKey(item.title)
     if (!key) continue
-    normalizedMap.set(key, item)
+    map.set(key, item)
   }
 
   const orderedKeys = ['totalPlants', 'activePlants', 'onlineSensors', 'recentReadings']
 
   return orderedKeys
-    .filter((key) => normalizedMap.has(key))
+    .filter((key) => map.has(key))
     .map((key) => {
-      const item = normalizedMap.get(key)
+      const item = map.get(key)
       return {
         ...item,
         key,
@@ -147,7 +147,7 @@ function ActionButton({ children, primary = false }) {
 
 function EmptyState({ message }) {
   return (
-    <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-slate-500">
+    <div className="flex h-full items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-slate-500">
       {message}
     </div>
   )
@@ -252,7 +252,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.15 }}
-              className="flex h-full min-h-[520px] flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+              className="flex min-h-[520px] flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
             >
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-slate-900">
@@ -287,7 +287,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.2 }}
-              className="flex h-full min-h-[520px] flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+              className="flex min-h-[520px] flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
             >
               <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -308,7 +308,7 @@ export default function Dashboard() {
                 {plants.length === 0 ? (
                   <EmptyState message={t('plantStatusEmpty')} />
                 ) : (
-                  <div className="grid h-full grid-cols-1 gap-4 overflow-auto pr-1">
+                  <div className="space-y-4 overflow-auto pr-1">
                     {plants.map((plant) => (
                       <div
                         key={`${plant.plant_id || plant.name}-${plant.installation}`}
