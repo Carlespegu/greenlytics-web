@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
+import LanguageDropdown from '../components/LanguageDropdown'
 import defaultLogo from '../../assets/logo.png'
 
 function menuClassName({ isActive }) {
@@ -55,35 +56,32 @@ export default function AppLayout() {
                   alt={brandName}
                   className="h-9 w-9 rounded-xl object-contain"
                 />
-                <span
-                  className="text-[1.45rem] font-semibold tracking-tight"
-                  style={{ color: brandPrimary }}
-                >
+                <span className="text-[1.45rem] font-semibold tracking-tight" style={{ color: brandPrimary }}>
                   {brandName}
                 </span>
               </div>
 
               <nav className="space-y-4">
                 <div>
-                  <SectionTitle>{t('operations')}</SectionTitle>
+                  <SectionTitle>Operativa</SectionTitle>
                   <div className="space-y-2">
                     <NavLink to="/" end className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                      {t('dashboard')}
+                      {t('Dashboard')}
                     </NavLink>
                     <NavLink to="/devices" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                      {t('sensors')}
+                      {t('Dispositius')}
                     </NavLink>
                     <NavLink to="/installations" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                      {t('installations')}
+                      {t('Instal·lacions')}
                     </NavLink>
                     <NavLink to="/plants" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                      {t('plants')}
+                      {t('plantes')}
                     </NavLink>
                   </div>
                 </div>
 
                 <div className="border-t border-slate-200 pt-4">
-                  <SectionTitle>{t('data')}</SectionTitle>
+                  <SectionTitle>Dades</SectionTitle>
                   <div className="space-y-2">
                     <NavLink to="/readings" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
                       {t('readings')}
@@ -96,18 +94,18 @@ export default function AppLayout() {
 
                 {canAccessAdministration && (
                   <div className="border-t border-slate-200 pt-4">
-                    <SectionTitle>{t('administration')}</SectionTitle>
+                    <SectionTitle>Administració</SectionTitle>
                     <div className="space-y-2">
                       {isAdmin && (
                         <NavLink to="/clients" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                          {t('clients')}
+                          {t('Clients')}
                         </NavLink>
                       )}
                       <NavLink to="/users" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                        {t('users')}
+                        {t('Users')}
                       </NavLink>
                       <NavLink to="/settings" className={menuClassName} style={({ isActive }) => itemStyle(isActive)}>
-                        {t('settings')}
+                        {t('Settings')}
                       </NavLink>
                     </div>
                   </div>
@@ -122,6 +120,8 @@ export default function AppLayout() {
                 {user?.username || user?.email}
                 {roleCode ? ` · ${roleCode}` : ''}
               </div>
+
+              <LanguageDropdown />
 
               <button
                 onClick={logout}
