@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
-import LanguageDropdown from '../components/LanguageDropdown'
 import defaultLogo from '../../assets/logo.png'
 
 function menuClassName({ isActive }) {
@@ -120,8 +119,6 @@ export default function AppLayout() {
                 {user?.username || user?.email}
                 {roleCode ? ` · ${roleCode}` : ''}
               </div>
-
-              <LanguageDropdown />
 
               <button
                 onClick={logout}
