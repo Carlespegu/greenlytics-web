@@ -46,7 +46,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="w-full px-4 py-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)]">
           <aside className="self-start lg:sticky lg:top-4">
             <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="mb-6 flex items-center gap-3 px-2 pt-1">
