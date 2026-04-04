@@ -1,12 +1,271 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import CollapsibleFiltersCard from '../components/CollapsibleFiltersCard'
+import CompactPagination from '../components/CompactPagination'
 import BackofficeListHeader from '../components/BackofficeListHeader'
+import { resourceService } from '../services/resourceService'
+
+function FilterInput({ name, value, onChange, placeholder }) {
+  return (
+    <input
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+    />
+  )
+}
+
+function formatDate(value) {
+  if (!value) return '-'
+  return new Date(value).toLocaleString()
+}
 
 export default function ReadingsPage() {
+  const [searchParams] = useSearchParams()
+  const deviceIdFromQuery = searchParams.get('deviceId') || ''
+  const deviceNameFromQuery = searchParams.get('deviceName') || ''
+
+  const [allItems, setAllItems] = useState([])
+  const [items, setItems] = useState([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [filters, setFilters] = useState({
+    deviceId: deviceIdFromQuery,
+    deviceName: deviceNameFromQuery,
+    installationName: '',
+    status: '',
+    fromDate: '',
+    toDate: '',
+  })
+
+  const activeFilterCount = useMemo(() => {
+    return Object.values(filters).filter((value) => value !== '').length
+  }, [filters])
+
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true)
+      setError('')
+      try {
+        const data = await resourceService.listReadings()
+        setAllItems(Array.isArray(data) ? data : [])
+      } catch (err) {
+        setError(err.message || 'No s’han pogut carregar les lectures.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    load()
+  }, [])
+
+  useEffect(() => {
+    let filtered = [...allItems]
+
+    if (filters.deviceId) {
+      filtered = filtered.filter((item) =>
+        String(item.deviceId || item.device_id || '').toLowerCase().includes(filters.deviceId.toLowerCase())
+      )
+    }
+
+    if (filters.deviceName) {
+      filtered = filtered.filter((item) =>
+        String(item.deviceName || item.device_name || item.device?.name || '').toLowerCase().includes(filters.deviceName.toLowerCase())
+      )
+    }
+
+    if (filters.installationName) {
+      filtered = filtered.filter((item) =>
+        String(item.installationName || item.installation_name || item.installation?.name || '').toLowerCase().includes(filters.installationName.toLowerCase())
+      )
+    }
+
+    if (filters.status) {
+      filtered = filtered.filter((item) =>
+        String(item.status || '').toLowerCase().includes(filters.status.toLowerCase())
+      )
+    }
+
+    if (filters.fromDate) {
+      const from = new Date(filters.fromDate)
+      filtered = filtered.filter((item) => {
+        const value = item.readAt || item.recorded_at || item.created_at || item.timestamp
+        return value ? new Date(value) >= from : false
+      })
+    }
+
+    if (filters.toDate) {
+      const to = new Date(filters.toDate)
+      to.setHours(23, 59, 59, 999)
+      filtered = filtered.filter((item) => {
+        const value = item.readAt || item.recorded_at || item.created_at || item.timestamp
+        return value ? new Date(value) <= to : false
+      })
+    }
+
+    setTotal(filtered.length)
+    const start = (page - 1) * pageSize
+    setItems(filtered.slice(start, start + pageSize))
+  }, [allItems, filters, page, pageSize])
+
+  function handleFilterChange(event) {
+    const { name, value } = event.target
+    setPage(1)
+    setFilters((prev) => ({ ...prev, [name]: value }))
+  }
+
+  function handleClearFilters() {
+    setPage(1)
+    setFilters({
+      deviceId: '',
+      deviceName: '',
+      installationName: '',
+      status: '',
+      fromDate: '',
+      toDate: '',
+    })
+  }
+
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <BackofficeListHeader title="Llistat de lectures" total={0} />
-      <p className="mt-6 text-sm text-slate-500">
-        Aquesta pantalla queda homogènia amb la resta del backoffice. La part funcional de filtres i paginació es pot connectar quan es defineixi l’endpoint de cerca definitiu.
-      </p>
-    </section>
+    <div className="space-y-6">
+      <CollapsibleFiltersCard
+        title="Filtres"
+        description="Ajusta criteris per localitzar lectures més ràpidament."
+        activeCount={activeFilterCount}
+        defaultExpanded={Boolean(deviceIdFromQuery)}
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <FilterInput
+              name="deviceId"
+              value={filters.deviceId}
+              onChange={handleFilterChange}
+              placeholder="Device ID"
+            />
+            <FilterInput
+              name="deviceName"
+              value={filters.deviceName}
+              onChange={handleFilterChange}
+              placeholder="Nom dispositiu"
+            />
+            <FilterInput
+              name="installationName"
+              value={filters.installationName}
+              onChange={handleFilterChange}
+              placeholder="Instal·lació"
+            />
+            <FilterInput
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+              placeholder="Status"
+            />
+            <label className="space-y-2 text-sm text-slate-700">
+              <span>Des de</span>
+              <input
+                type="date"
+                name="fromDate"
+                value={filters.fromDate}
+                onChange={handleFilterChange}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+              />
+            </label>
+            <label className="space-y-2 text-sm text-slate-700">
+              <span>Fins a</span>
+              <input
+                type="date"
+                name="toDate"
+                value={filters.toDate}
+                onChange={handleFilterChange}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+              />
+            </label>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              className="rounded-xl px-4 py-2 text-sm font-medium text-white"
+              style={{ backgroundColor: 'var(--brand-primary)' }}
+            >
+              Cercar
+            </button>
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Netejar filtres
+            </button>
+          </div>
+        </div>
+      </CollapsibleFiltersCard>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <BackofficeListHeader
+          title="Llistat de lectures"
+          total={total}
+        />
+
+        {isLoading ? <p className="mt-4 text-sm text-slate-500">Carregant...</p> : null}
+        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 text-left text-slate-500">
+                <th className="px-3 py-3">Data lectura</th>
+                <th className="px-3 py-3">Device ID</th>
+                <th className="px-3 py-3">Nom dispositiu</th>
+                <th className="px-3 py-3">Instal·lació</th>
+                <th className="px-3 py-3">Status</th>
+                <th className="px-3 py-3">Temperatura</th>
+                <th className="px-3 py-3">Humitat</th>
+                <th className="px-3 py-3">Llum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={item.id || `${item.deviceId || item.device_id}-${index}`} className="border-b border-slate-100">
+                  <td className="px-3 py-3">{formatDate(item.readAt || item.recorded_at || item.created_at || item.timestamp)}</td>
+                  <td className="px-3 py-3">{item.deviceId || item.device_id || '-'}</td>
+                  <td className="px-3 py-3">{item.deviceName || item.device_name || item.device?.name || '-'}</td>
+                  <td className="px-3 py-3">{item.installationName || item.installation_name || item.installation?.name || '-'}</td>
+                  <td className="px-3 py-3">{item.status || '-'}</td>
+                  <td className="px-3 py-3">{item.temperature ?? item.tempC ?? '-'}</td>
+                  <td className="px-3 py-3">{item.humidity ?? item.humAir ?? item.soilPercent ?? '-'}</td>
+                  <td className="px-3 py-3">{item.light ?? item.ldrRaw ?? '-'}</td>
+                </tr>
+              ))}
+
+              {!isLoading && items.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-3 py-6 text-center text-slate-500">
+                    No s’han trobat lectures.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+
+        <CompactPagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          isLoading={isLoading}
+          onPageChange={setPage}
+          onPageSizeChange={(nextSize) => {
+            setPage(1)
+            setPageSize(nextSize)
+          }}
+        />
+      </section>
+    </div>
   )
 }
