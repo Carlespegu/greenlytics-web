@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import CollapsibleFiltersCard from '../components/CollapsibleFiltersCard'
 import DeviceFilters from '../components/DeviceFilters'
 import DeviceActionsDropdown from '../components/DeviceActionsDropdown'
 import DeviceEditModal from '../components/DeviceEditModal'
@@ -181,29 +182,19 @@ export default function DevicesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Filtres</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Aplica criteris de cerca per localitzar dispositius ràpidament.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-50 px-4 py-2 text-sm text-slate-600">
-            Filtres actius: <span className="font-semibold text-slate-900">{activeFilterCount}</span>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <DeviceFilters
-            initialFilters={activeFilters}
-            onSearch={handleSearch}
-            onReset={handleReset}
-            disabled={isLoading || isSaving}
-          />
-        </div>
-      </section>
+      <CollapsibleFiltersCard
+        title="Filtres"
+        description="Ajusta criteris de cerca per localitzar dispositius més ràpidament."
+        activeCount={activeFilterCount}
+        defaultExpanded={false}
+      >
+        <DeviceFilters
+          initialFilters={activeFilters}
+          onSearch={handleSearch}
+          onReset={handleReset}
+          disabled={isLoading || isSaving}
+        />
+      </CollapsibleFiltersCard>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm overflow-visible">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
