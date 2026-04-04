@@ -205,7 +205,7 @@ export default function DevicesPage() {
           onPageSizeChange={(nextSize) => loadDevices({ targetPage: 1, targetPageSize: nextSize })}
         />
       </section>
-
+ 
       <DeviceEditModal
         isOpen={isEditOpen}
         device={selectedDevice}
