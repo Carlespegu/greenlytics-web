@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CollapsibleFiltersCard from '../components/CollapsibleFiltersCard'
+import CompactPagination from '../components/CompactPagination'
+import BackofficeListHeader from '../components/BackofficeListHeader'
 import DeviceFilters from '../components/DeviceFilters'
 import DeviceActionsDropdown from '../components/DeviceActionsDropdown'
 import DeviceEditModal from '../components/DeviceEditModal'
@@ -50,7 +52,6 @@ function buildVisiblePages(currentPage, totalPages) {
 
 export default function DevicesPage() {
   const navigate = useNavigate()
-
   const [items, setItems] = useState([])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -204,7 +205,7 @@ export default function DevicesPage() {
     <div className="space-y-6">
       <CollapsibleFiltersCard
         title="Filtres"
-        description="Ajusta criteris de cerca per localitzar dispositius més ràpidament."
+        description="Ajusta criteris per localitzar dispositius més ràpidament."
         activeCount={activeFilterCount}
         defaultExpanded={false}
       >
@@ -217,14 +218,12 @@ export default function DevicesPage() {
       </CollapsibleFiltersCard>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm overflow-visible">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Llistat de dispositius</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Resultats: {total}
-            </p>
-          </div>
-        </div>
+        <BackofficeListHeader
+          title="Llistat de dispositius"
+          total={total}
+          showNewButton
+          onNew={() => navigate('/devices/new')}
+        />
 
         {isLoading ? <p className="mt-4 text-sm text-slate-500">Carregant...</p> : null}
         {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CollapsibleFiltersCard from '../components/CollapsibleFiltersCard'
 import CompactPagination from '../components/CompactPagination'
 import BackofficeListHeader from '../components/BackofficeListHeader'
@@ -22,6 +23,7 @@ function formatDate(value) {
 }
 
 export default function AlertsPage() {
+  const navigate = useNavigate()
   const [allItems, setAllItems] = useState([])
   const [items, setItems] = useState([])
   const [total, setTotal] = useState(0)
@@ -41,6 +43,18 @@ export default function AlertsPage() {
   const activeFilterCount = useMemo(() => {
     return Object.values(filters).filter((value) => value !== '').length
   }, [filters])
+
+  const totalPages = useMemo(() => {
+    const pages = Math.ceil((total || 0) / pageSize)
+    return Math.max(1, pages || 1)
+  }, [total, pageSize])
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1)
+    if (page <= 4) return [1, 2, 3, 4, 5, 'ellipsis', totalPages]
+    if (page >= totalPages - 3) return [1, 'ellipsis', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+    return [1, 'ellipsis', page - 1, page, page + 1, 'ellipsis', totalPages]
+  }, [page, totalPages])
 
   useEffect(() => {
     async function load() {
@@ -136,65 +150,25 @@ export default function AlertsPage() {
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <FilterInput
-              name="title"
-              value={filters.title}
-              onChange={handleFilterChange}
-              placeholder="Títol / alerta"
-            />
-            <FilterInput
-              name="deviceName"
-              value={filters.deviceName}
-              onChange={handleFilterChange}
-              placeholder="Nom dispositiu"
-            />
-            <FilterInput
-              name="level"
-              value={filters.level}
-              onChange={handleFilterChange}
-              placeholder="Nivell"
-            />
-            <FilterInput
-              name="status"
-              value={filters.status}
-              onChange={handleFilterChange}
-              placeholder="Status"
-            />
+            <FilterInput name="title" value={filters.title} onChange={handleFilterChange} placeholder="Títol / alerta" />
+            <FilterInput name="deviceName" value={filters.deviceName} onChange={handleFilterChange} placeholder="Nom dispositiu" />
+            <FilterInput name="level" value={filters.level} onChange={handleFilterChange} placeholder="Nivell" />
+            <FilterInput name="status" value={filters.status} onChange={handleFilterChange} placeholder="Status" />
             <label className="space-y-2 text-sm text-slate-700">
               <span>Des de</span>
-              <input
-                type="date"
-                name="fromDate"
-                value={filters.fromDate}
-                onChange={handleFilterChange}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-              />
+              <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
             </label>
             <label className="space-y-2 text-sm text-slate-700">
               <span>Fins a</span>
-              <input
-                type="date"
-                name="toDate"
-                value={filters.toDate}
-                onChange={handleFilterChange}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
-              />
+              <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400" />
             </label>
           </div>
 
           <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              className="rounded-xl px-4 py-2 text-sm font-medium text-white"
-              style={{ backgroundColor: 'var(--brand-primary)' }}
-            >
+            <button type="button" className="rounded-xl px-4 py-2 text-sm font-medium text-white" style={{ backgroundColor: 'var(--brand-primary)' }}>
               Cercar
             </button>
-            <button
-              type="button"
-              onClick={handleClearFilters}
-              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
+            <button type="button" onClick={handleClearFilters} className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
               Netejar filtres
             </button>
           </div>
@@ -205,6 +179,8 @@ export default function AlertsPage() {
         <BackofficeListHeader
           title="Llistat d'alertes"
           total={total}
+          showNewButton
+          onNew={() => navigate('/alerts/new')}
         />
 
         {isLoading ? <p className="mt-4 text-sm text-slate-500">Carregant...</p> : null}
@@ -245,17 +221,28 @@ export default function AlertsPage() {
           </table>
         </div>
 
-        <CompactPagination
-          page={page}
-          pageSize={pageSize}
-          total={total}
-          isLoading={isLoading}
-          onPageChange={setPage}
-          onPageSizeChange={(nextSize) => {
-            setPage(1)
-            setPageSize(nextSize)
-          }}
-        />
+        <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-slate-600">Files</label>
+            <select value={pageSize} onChange={(event) => { setPage(1); setPageSize(Number(event.target.value)) }} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-end gap-2">
+            <button onClick={() => setPage(page - 1)} disabled={page <= 1 || isLoading} className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50">‹</button>
+            {visiblePages.map((pageItem, index) => pageItem === 'ellipsis' ? (
+              <span key={`ellipsis-${index}`} className="inline-flex h-9 min-w-9 items-center justify-center px-1 text-sm text-slate-400">…</span>
+            ) : (
+              <button key={pageItem} onClick={() => setPage(pageItem)} disabled={isLoading} className={['inline-flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-medium transition', pageItem === page ? 'text-white shadow-sm' : 'border border-transparent bg-white text-slate-600 hover:bg-slate-50'].join(' ')} style={pageItem === page ? { backgroundColor: 'var(--brand-primary)' } : undefined}>
+                {pageItem}
+              </button>
+            ))}
+            <button onClick={() => setPage(page + 1)} disabled={page >= totalPages || isLoading} className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50">›</button>
+          </div>
+        </div>
       </section>
     </div>
   )
