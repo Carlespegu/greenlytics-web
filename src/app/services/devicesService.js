@@ -1,10 +1,10 @@
 import { api } from '../lib/api'
 
-function normalizeSearchPayload(filters = {}) {
+function normalizeSearchPayload(filters = {}, pagination = {}) {
   const payload = {
     pagination_params: {
-      page: 1,
-      page_size: 25,
+      page: pagination.page || 1,
+      page_size: pagination.pageSize || 10,
     },
   }
 
@@ -60,30 +60,55 @@ function normalizeSearchPayload(filters = {}) {
   return payload
 }
 
-function normalizeSearchResponse(payload) {
+function normalizeSearchResponse(payload, pagination = {}) {
   if (Array.isArray(payload)) {
-    return { items: payload }
+    return {
+      items: payload,
+      total: payload.length,
+      page: pagination.page || 1,
+      page_size: pagination.pageSize || 10,
+    }
   }
 
   if (Array.isArray(payload?.items)) {
-    return payload
+    return {
+      ...payload,
+      total: payload.total ?? payload.count ?? payload.items.length,
+      page: payload.page ?? pagination.page ?? 1,
+      page_size: payload.page_size ?? payload.pageSize ?? pagination.pageSize ?? 10,
+    }
   }
 
   if (Array.isArray(payload?.data)) {
-    return { ...payload, items: payload.data }
+    return {
+      items: payload.data,
+      total: payload.total ?? payload.count ?? payload.data.length,
+      page: payload.page ?? pagination.page ?? 1,
+      page_size: payload.page_size ?? payload.pageSize ?? pagination.pageSize ?? 10,
+    }
   }
 
   if (Array.isArray(payload?.results)) {
-    return { ...payload, items: payload.results }
+    return {
+      items: payload.results,
+      total: payload.total ?? payload.count ?? payload.results.length,
+      page: payload.page ?? pagination.page ?? 1,
+      page_size: payload.page_size ?? payload.pageSize ?? pagination.pageSize ?? 10,
+    }
   }
 
-  return { items: [] }
+  return {
+    items: [],
+    total: 0,
+    page: pagination.page || 1,
+    page_size: pagination.pageSize || 10,
+  }
 }
 
 export const devicesService = {
-  async searchDevices(filters = {}) {
-    const payload = await api.post('/devices/search', normalizeSearchPayload(filters))
-    return normalizeSearchResponse(payload)
+  async searchDevices(filters = {}, pagination = {}) {
+    const payload = await api.post('/devices/search', normalizeSearchPayload(filters, pagination))
+    return normalizeSearchResponse(payload, pagination)
   },
 
   async updateDevice(deviceId, body) {

@@ -41,6 +41,9 @@ export default function DevicesPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [total, setTotal] = useState(0)
   const [activeFilters, setActiveFilters] = useState({
     code: '',
     name: '',
@@ -55,13 +58,29 @@ export default function DevicesPage() {
     return Object.values(activeFilters).filter((value) => value !== '').length
   }, [activeFilters])
 
-  async function loadDevices(filters = activeFilters) {
+  const totalPages = useMemo(() => {
+    const pages = Math.ceil((total || 0) / pageSize)
+    return Math.max(1, pages || 1)
+  }, [total, pageSize])
+
+  async function loadDevices({
+    filters = activeFilters,
+    targetPage = page,
+    targetPageSize = pageSize,
+  } = {}) {
     setIsLoading(true)
     setError('')
 
     try {
-      const payload = await devicesService.searchDevices(filters)
+      const payload = await devicesService.searchDevices(filters, {
+        page: targetPage,
+        pageSize: targetPageSize,
+      })
+
       setItems(payload.items || [])
+      setTotal(payload.total || payload.items?.length || 0)
+      setPage(payload.page || targetPage)
+      setPageSize(payload.page_size || payload.pageSize || targetPageSize)
     } catch (err) {
       setError(err.message || 'No s’han pogut carregar els dispositius.')
     } finally {
@@ -76,7 +95,7 @@ export default function DevicesPage() {
 
   async function handleSearch(filters) {
     setActiveFilters(filters)
-    await loadDevices(filters)
+    await loadDevices({ filters, targetPage: 1 })
   }
 
   async function handleReset() {
@@ -90,7 +109,7 @@ export default function DevicesPage() {
       is_active: '',
     }
     setActiveFilters(emptyFilters)
-    await loadDevices(emptyFilters)
+    await loadDevices({ filters: emptyFilters, targetPage: 1 })
   }
 
   function handleEdit(device) {
@@ -165,12 +184,9 @@ export default function DevicesPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-medium text-emerald-600">Operativa</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-              Dispositius
-            </h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Cerca, consulta i mantén els dispositius registrats a la plataforma.
+            <h2 className="text-lg font-semibold text-slate-900">Filtres</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Aplica criteris de cerca per localitzar dispositius ràpidament.
             </p>
           </div>
 
@@ -178,22 +194,40 @@ export default function DevicesPage() {
             Filtres actius: <span className="font-semibold text-slate-900">{activeFilterCount}</span>
           </div>
         </div>
+
+        <div className="mt-4">
+          <DeviceFilters
+            initialFilters={activeFilters}
+            onSearch={handleSearch}
+            onReset={handleReset}
+            disabled={isLoading || isSaving}
+          />
+        </div>
       </section>
 
-      <DeviceFilters
-        initialFilters={activeFilters}
-        onSearch={handleSearch}
-        onReset={handleReset}
-        disabled={isLoading || isSaving}
-      />
-
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm overflow-visible">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Llistat de dispositius</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Resultats: {items.length}
+              Resultats: {total}
             </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-slate-600">Files per pàgina</label>
+            <select
+              value={pageSize}
+              onChange={(event) => {
+                const nextPageSize = Number(event.target.value)
+                loadDevices({ targetPage: 1, targetPageSize: nextPageSize })
+              }}
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
           </div>
         </div>
 
@@ -201,7 +235,7 @@ export default function DevicesPage() {
         {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
         {success ? <p className="mt-4 text-sm text-emerald-600">{success}</p> : null}
 
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 overflow-visible">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left text-slate-500">
@@ -246,6 +280,30 @@ export default function DevicesPage() {
               ) : null}
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-slate-500">
+            Pàgina {page} de {totalPages}
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => loadDevices({ targetPage: page - 1 })}
+              disabled={page <= 1 || isLoading}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Anterior
+            </button>
+
+            <button
+              onClick={() => loadDevices({ targetPage: page + 1 })}
+              disabled={page >= totalPages || isLoading}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Següent
+            </button>
+          </div>
         </div>
       </section>
 

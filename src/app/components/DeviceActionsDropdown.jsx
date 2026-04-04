@@ -27,7 +27,7 @@ export default function DeviceActionsDropdown({
   }
 
   return (
-    <div ref={containerRef} className="relative inline-block text-left">
+    <div ref={containerRef} className="relative inline-block text-left overflow-visible">
       <button
         type="button"
         disabled={disabled}
@@ -38,7 +38,7 @@ export default function DeviceActionsDropdown({
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 z-20 mt-2 w-40 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+        <div className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
           <button
             type="button"
             onClick={() => handleAction(onEdit)}
