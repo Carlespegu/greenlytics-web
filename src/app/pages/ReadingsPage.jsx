@@ -196,7 +196,6 @@ export default function ReadingsPage() {
             <thead>
               <tr className="border-b border-slate-200 text-left text-slate-500">
                 <th className="px-3 py-3">Data lectura</th>
-                <th className="px-3 py-3">Device ID</th>
                 <th className="px-3 py-3">Nom dispositiu</th>
                 <th className="px-3 py-3">Instal·lació</th>
                 <th className="px-3 py-3">Status</th>
@@ -209,10 +208,10 @@ export default function ReadingsPage() {
             </thead>
             <tbody>
               {items.map((item, index) => (
-                <tr key={`${item.device_name}-${index}`} className="border-b border-slate-100">
+                <tr key={`${item.device_id}-${index}`} className="border-b border-slate-100">
                   <td className="px-3 py-3">{formatDate(item.readAt || item.recorded_at || item.created_at || item.timestamp)}</td>
                   <td className="px-3 py-3">{item.device_name || item.device?.name || '-'}</td>
-                  <td className="px-3 py-3">{item.installationName || item.installation_name || item.installation?.name || '-'}</td>
+                  <td className="px-3 py-3">{item.installation_name || item.installation?.name || '-'}</td>
                   <td className="px-3 py-3">{item.status || '-'}</td>
                   <td className="px-3 py-3">{item.temperature ?? item.tempC ?? '-'}</td>
                   <td className="px-3 py-3">{item.humidity ?? item.humAir ?? item.soilPercent ?? '-'}</td>
