@@ -110,7 +110,6 @@ export default function InstallationsPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left text-slate-500">
-                <th className="px-3 py-3">Id</th>
                 <th className="px-3 py-3">Nom</th>
                 <th className="px-3 py-3">Client</th>
                 <th className="px-3 py-3">Ubicació</th>
@@ -119,9 +118,8 @@ export default function InstallationsPage() {
             <tbody>
               {items.map((item) => (
                 <tr key={item.id} className="border-b border-slate-100">
-                  <td className="px-3 py-3">{item.id || '-'}</td>
                   <td className="px-3 py-3">{item.name || '-'}</td>
-                  <td className="px-3 py-3">{item.clientId || item.client?.name || '-'}</td>
+                  <td className="px-3 py-3">{item.client?.name || '-'}</td>
                   <td className="px-3 py-3">{item.location || '-'}</td>
                 </tr>
               ))}
