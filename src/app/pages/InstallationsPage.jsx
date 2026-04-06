@@ -17,7 +17,7 @@ function FilterInput({ name, value, onChange, placeholder }) {
   )
 }
 
-const EMPTY_FILTERS = { name: '', location: '', clientId: '' }
+const EMPTY_FILTERS = { name: '', state: '', code: '', IsActive: '' }
 
 export default function InstallationsPage() {
   const navigate = useNavigate()
