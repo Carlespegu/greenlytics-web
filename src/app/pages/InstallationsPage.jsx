@@ -50,8 +50,9 @@ export default function InstallationsPage() {
   useEffect(() => {
     let filtered = [...allItems]
     if (appliedFilters.name) filtered = filtered.filter((item) => String(item.name || '').toLowerCase().includes(appliedFilters.name.toLowerCase()))
-    if (appliedFilters.location) filtered = filtered.filter((item) => String(item.location || '').toLowerCase().includes(appliedFilters.location.toLowerCase()))
-    if (appliedFilters.clientId) filtered = filtered.filter((item) => String(item.clientId || item.client?.name || '').toLowerCase().includes(appliedFilters.clientId.toLowerCase()))
+    if (appliedFilters.state) filtered = filtered.filter((item) => String(item.state || '').toLowerCase().includes(appliedFilters.state.toLowerCase()))
+    if (appliedFilters.code) filtered = filtered.filter((item) => String(item.code || '').toLowerCase().includes(appliedFilters.code.toLowerCase()))
+    if (appliedFilters.is_active) filtered = filtered.filter((item) => Boolean(item.is_active || '').toLowerCase().includes(appliedFilters.is_active.toLowerCase()))
     setTotal(filtered.length)
     const start = (page - 1) * pageSize
     setItems(filtered.slice(start, start + pageSize))
@@ -85,8 +86,9 @@ export default function InstallationsPage() {
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <FilterInput name="name" value={filters.name} onChange={handleFilterChange} placeholder="Nom" />
-            <FilterInput name="location" value={filters.location} onChange={handleFilterChange} placeholder="Ubicació" />
-            <FilterInput name="clientId" value={filters.clientId} onChange={handleFilterChange} placeholder="Client" />
+            <FilterInput name="state" value={filters.state} onChange={handleFilterChange} placeholder="Ubicació" />
+            <FilterInput name="Code" value={filters.code} onChange={handleFilterChange} placeholder="Codi" />
+            <FilterInput name="is_active" value={filters.is_active} onChange={handleFilterChange} placeholder="Active" />
           </div>
 
           <div className="flex justify-end gap-3">
@@ -122,7 +124,7 @@ export default function InstallationsPage() {
                 <tr key={item.id} className="border-b border-slate-100">
                   <td className="px-3 py-3">{item.name || '-'}</td>
                   <td className="px-3 py-3">{item.code || '-'}</td>
-                  <td className="px-3 py-3">{item.location || '-'}</td>
+                  <td className="px-3 py-3">{item.state || '-'}</td>
                   <td className="px-3 py-3">{item.latitude || '-'}</td>
                   <td className="px-3 py-3">{item.longitude || '-'}</td>
                 </tr>
