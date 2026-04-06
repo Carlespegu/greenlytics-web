@@ -111,16 +111,20 @@ export default function InstallationsPage() {
             <thead>
               <tr className="border-b border-slate-200 text-left text-slate-500">
                 <th className="px-3 py-3">Nom</th>
-                <th className="px-3 py-3">Client</th>
+                <th className="px-3 py-3">Code</th>
                 <th className="px-3 py-3">Ubicació</th>
+                <th className="px-3 py-3">Latitut</th>
+                <th className="px-3 py-3">Longitut</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={item.id} className="border-b border-slate-100">
                   <td className="px-3 py-3">{item.name || '-'}</td>
-                  <td className="px-3 py-3">{item.client?.name || '-'}</td>
+                  <td className="px-3 py-3">{item.code || '-'}</td>
                   <td className="px-3 py-3">{item.location || '-'}</td>
+                  <td className="px-3 py-3">{item.latitude || '-'}</td>
+                  <td className="px-3 py-3">{item.longitude || '-'}</td>
                 </tr>
               ))}
               {!isLoading && items.length === 0 ? (
