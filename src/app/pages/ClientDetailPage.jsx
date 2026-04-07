@@ -114,7 +114,7 @@ function UserModal({
 
   function getRoleLabel(role) {
     const code = String(role?.code || '').trim().toUpperCase()
-    if (code === 'ADMIN') return 'Admin'
+    if (code === 'ADMIN') return t('roleAdmin')
     if (code === 'MANAGER') return t('roleManager')
     if (code === 'VIEWER') return t('roleViewer')
     return role?.name || role?.code || t('role')
