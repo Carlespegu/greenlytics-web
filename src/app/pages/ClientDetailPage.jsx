@@ -114,6 +114,7 @@ function UserModal({
 
   function getRoleLabel(role) {
     const code = String(role?.code || '').trim().toUpperCase()
+    if (code === 'ADMIN') return 'Admin'
     if (code === 'MANAGER') return t('roleManager')
     if (code === 'VIEWER') return t('roleViewer')
     return role?.name || role?.code || t('role')
@@ -675,7 +676,9 @@ function openEditUserModal(item) {
                             <td className="px-3 py-3">{item.first_name || '-'}</td>
                             <td className="px-3 py-3">{item.last_name || '-'}</td>
                             <td className="px-3 py-3">
-                              {role?.code === 'MANAGER'
+                              {role?.code === 'ADMIN'
+                                ? 'Admin'
+                                : role?.code === 'MANAGER'
                                 ? t('roleManager')
                                 : role?.code === 'VIEWER'
                                   ? t('roleViewer')
