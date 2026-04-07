@@ -53,11 +53,11 @@ export default function DevicesPage() {
     description: '',
     device_type_id: '',
     status: '',
-    is_active: '',
+    is_active: null,
   })
 
   const activeFilterCount = useMemo(() => {
-    return Object.values(activeFilters).filter((value) => value !== '').length
+    return Object.values(activeFilters).filter((value) => value !== '' && value !== null).length
   }, [activeFilters])
 
   async function loadDevices({
@@ -103,7 +103,7 @@ export default function DevicesPage() {
       description: '',
       device_type_id: '',
       status: '',
-      is_active: '',
+      is_active: null,
     }
     setActiveFilters(emptyFilters)
     await loadDevices({ filters: emptyFilters, targetPage: 1 })
