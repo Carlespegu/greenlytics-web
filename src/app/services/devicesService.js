@@ -50,9 +50,9 @@ function normalizeSearchPayload(filters = {}, pagination = {}) {
     }
   }
 
-  if (filters.is_active !== '') {
+  if (filters.is_active !== '' && filters.is_active !== null && filters.is_active !== undefined) {
     payload.is_active = {
-      filter_value: filters.is_active === 'true',
+      filter_value: Boolean(filters.is_active),
       comparator: 'equals',
     }
   }
