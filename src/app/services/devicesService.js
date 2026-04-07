@@ -15,6 +15,10 @@ function normalizeSearchPayload(filters = {}, pagination = {}) {
     }
   }
 
+  if (Array.isArray(filters.client_ids) && filters.client_ids.length > 0) {
+    payload.client_ids = filters.client_ids
+  }
+
   if (filters.code) {
     payload.code = {
       filter_value: filters.code,

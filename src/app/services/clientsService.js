@@ -60,6 +60,14 @@ export const clientsService = {
     return api.get(`/clients/${clientId}`)
   },
 
+  async searchClientOptions({ query = '', page = 1, pageSize = 10 } = {}) {
+    return api.post('/clients/search-combo', {
+      query,
+      page,
+      page_size: Math.min(pageSize, 10),
+    })
+  },
+
   async createClient(payload) {
     return api.post('/clients', payload)
   },
