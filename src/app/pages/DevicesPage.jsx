@@ -34,6 +34,16 @@ function normalizeDevice(device) {
   }
 }
 
+const EMPTY_FILTERS = {
+  code: '',
+  name: '',
+  serial_number: '',
+  description: '',
+  device_type_id: '',
+  status: '',
+  is_active: null,
+}
+
 export default function DevicesPage() {
   const navigate = useNavigate()
   const [items, setItems] = useState([])
@@ -46,15 +56,7 @@ export default function DevicesPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(0)
-  const [activeFilters, setActiveFilters] = useState({
-    code: '',
-    name: '',
-    serial_number: '',
-    description: '',
-    device_type_id: '',
-    status: '',
-    is_active: null,
-  })
+  const [activeFilters, setActiveFilters] = useState(EMPTY_FILTERS)
 
   const activeFilterCount = useMemo(() => {
     return Object.values(activeFilters).filter((value) => value !== '' && value !== null).length
@@ -96,17 +98,8 @@ export default function DevicesPage() {
   }
 
   async function handleReset() {
-    const emptyFilters = {
-      code: '',
-      name: '',
-      serial_number: '',
-      description: '',
-      device_type_id: '',
-      status: '',
-      is_active: null,
-    }
-    setActiveFilters(emptyFilters)
-    await loadDevices({ filters: emptyFilters, targetPage: 1 })
+    setActiveFilters(EMPTY_FILTERS)
+    await loadDevices({ filters: EMPTY_FILTERS, targetPage: 1 })
   }
 
   function handleEdit(device) {

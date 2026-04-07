@@ -16,6 +16,7 @@ function FilterInput({ name, value, onChange, placeholder, disabled = false }) {
 function TriStateSwitch({ value, onChange, disabled = false }) {
   function handleClick() {
     if (disabled) return
+
     if (value === null) onChange(true)
     else if (value === true) onChange(false)
     else onChange(null)
@@ -35,8 +36,7 @@ function TriStateSwitch({ value, onChange, disabled = false }) {
         ? 'translate-x-1'
         : 'translate-x-4'
 
-  const label =
-    value === true ? 'Sí' : value === false ? 'No' : 'Tots'
+  const label = value === true ? 'Sí' : value === false ? 'No' : 'Tots'
 
   return (
     <div className="flex items-center gap-3">
@@ -58,16 +58,26 @@ function TriStateSwitch({ value, onChange, disabled = false }) {
   )
 }
 
+const EMPTY_FILTERS = {
+  code: '',
+  name: '',
+  serial_number: '',
+  description: '',
+  device_type_id: '',
+  status: '',
+  is_active: null,
+}
+
 export default function DeviceFilters({
   initialFilters,
   onSearch,
   onReset,
   disabled = false,
 }) {
-  const [filters, setFilters] = useState(initialFilters)
+  const [filters, setFilters] = useState(initialFilters ?? EMPTY_FILTERS)
 
   useEffect(() => {
-    setFilters(initialFilters)
+    setFilters(initialFilters ?? EMPTY_FILTERS)
   }, [initialFilters])
 
   function handleChange(event) {
@@ -84,16 +94,7 @@ export default function DeviceFilters({
   }
 
   function handleResetClick() {
-    const empty = {
-      code: '',
-      name: '',
-      serial_number: '',
-      description: '',
-      device_type_id: '',
-      status: '',
-      is_active: null,
-    }
-    setFilters(empty)
+    setFilters(EMPTY_FILTERS)
     onReset()
   }
 
@@ -102,35 +103,35 @@ export default function DeviceFilters({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <FilterInput
           name="code"
-          value={filters.code}
+          value={filters.code ?? ''}
           onChange={handleChange}
           placeholder="Codi"
           disabled={disabled}
         />
         <FilterInput
           name="name"
-          value={filters.name}
+          value={filters.name ?? ''}
           onChange={handleChange}
           placeholder="Nom"
           disabled={disabled}
         />
         <FilterInput
           name="description"
-          value={filters.description}
+          value={filters.description ?? ''}
           onChange={handleChange}
           placeholder="Descripció"
           disabled={disabled}
         />
         <FilterInput
           name="serial_number"
-          value={filters.serial_number}
+          value={filters.serial_number ?? ''}
           onChange={handleChange}
           placeholder="Serial"
           disabled={disabled}
         />
         <FilterInput
           name="device_type_id"
-          value={filters.device_type_id}
+          value={filters.device_type_id ?? ''}
           onChange={handleChange}
           placeholder="Tipus dispositiu (ID)"
           disabled={disabled}
@@ -138,7 +139,7 @@ export default function DeviceFilters({
 
         <select
           name="status"
-          value={filters.status}
+          value={filters.status ?? ''}
           onChange={handleChange}
           disabled={disabled}
           className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400 disabled:cursor-not-allowed disabled:bg-slate-50"
